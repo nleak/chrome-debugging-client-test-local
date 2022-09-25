@@ -8,7 +8,7 @@ createSession(async (session) => {
   // spawns a chrome instance with a tmp user data
   // and the debugger open to an ephemeral port
   const process = await session.spawnBrowser({
-    executablePath: '/Applications/Google Chrome Canary.app/Contents/MacOS/Google Chrome Canary',
+    executablePath: '/Applications/Google Chrome_2018.app/Contents/MacOS/Google Chrome',
     additionalArguments: ['--headless', '--disable-gpu', '--hide-scrollbars', '--mute-audio'],
     windowSize: { width: 640, height: 320 }
   });
@@ -29,10 +29,11 @@ createSession(async (session) => {
 
   // create the HeapProfiler domain with the debugger protocol client
   const heapProfiler = new HeapProfiler(debuggerClient);
+  console.log('--------------------', heapProfiler)
   await heapProfiler.enable();
 
   // The domains are optional, this can also be
-  // await debuggerClient.send("HeapProfiler.enable", {})
+  await debuggerClient.send("HeapProfiler.enable", {})
 
   let buffer = "";
   heapProfiler.addHeapSnapshotChunk = (evt) => {
@@ -40,6 +41,7 @@ createSession(async (session) => {
   };
   await heapProfiler.takeHeapSnapshot({ reportProgress: false });
   await heapProfiler.disable();
+  console.log('///////////////// done')
 
   return JSON.parse(buffer);
 }).then((data) => {
